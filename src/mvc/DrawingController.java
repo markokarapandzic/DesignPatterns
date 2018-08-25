@@ -439,17 +439,16 @@ public class DrawingController implements Subject {
 	// Modify END
 
 	// Drawing START
+	@SuppressWarnings("null")
 	public void viewMouseClicked(MouseEvent e) {
 
 		if (frame.getTglbtnTacka().isSelected()) {
 
 			x = e.getX();
 			y = e.getY();
-			
 			Color color = frame.getBtnColor().getBackground();
 			Point t1 = new Point(x, y, color);
 			CmdAddShape cmd = new CmdAddShape(model, t1);
-			
 			cmd.execute();
 			list.getList().add(cmd);
 			frame.getBtnUndo().setEnabled(true);
@@ -542,7 +541,6 @@ public class DrawingController implements Subject {
 		} else if (frame.getTglbtnKvadrat().isSelected()) {
 
 			Exception exp = null;
-			
 			try {
 
 				x = e.getX();
@@ -600,11 +598,9 @@ public class DrawingController implements Subject {
 			}
 
 		} else if (frame.getTglbtnPravougaonik().isSelected()) {
-			
 			Exception exp = null;
 			x = e.getX();
 			y = e.getY();
-			
 			dlgPravougaonik.setTitle("Rectangle properties: ");
 			dlgPravougaonik.getTxtX().setText(Integer.toString(x));
 			dlgPravougaonik.getTxtY().setText(Integer.toString(y));
@@ -623,14 +619,14 @@ public class DrawingController implements Subject {
 
 					int sideLenght = Integer.parseInt(dlgPravougaonik.getTxtDuzinaStranice().getText());
 					int sideWidth = Integer.parseInt(dlgPravougaonik.getTxtSirinaStranice().getText());
-					Color color = frame.getBtnColor().getBackground();
-					Color colorInner = frame.getBtnFillColor().getBackground();
+					Color boja = frame.getBtnColor().getBackground();
+					Color bojaU = frame.getBtnFillColor().getBackground();
 
 					if (sideLenght <= 0 || sideWidth <= 0) {
 						throw exp;
 					}
 
-					Rectangle p = new Rectangle(new Point(x, y), sideLenght, sideWidth, color, colorInner);
+					Rectangle p = new Rectangle(new Point(x, y), sideLenght, sideWidth, boja, bojaU);
 
 					CmdAddShape cmd = new CmdAddShape(model, p);
 					cmd.execute();
@@ -717,8 +713,8 @@ public class DrawingController implements Subject {
 			}
 
 		}
-		
 		// Selection START
+
 		if (frame.getTglbtnSelektuj().isSelected()) {
 
 			x = e.getX();
@@ -993,7 +989,7 @@ public class DrawingController implements Subject {
 		saveLog.save(frame, fileToSaveLog);
 
 	}
-	// Save Object & Log END
+	// Save Object & Log START
 
 	@SuppressWarnings("unchecked")
 	public void load(File fileToLoad) throws ClassNotFoundException, IOException {
@@ -1074,19 +1070,23 @@ public class DrawingController implements Subject {
 		Shape s = null;
 
 		while ((line = br.readLine()) != null) {
-
 			backList.add(line);
 		}
 
 		for (int i = 0; i < backList.size(); i++) {
+			
 			line = backList.get(i);
+			
 			if (line.contains("Point")) {
+				
 				int x = Integer.parseInt(line.substring(line.indexOf("(") + 1, line.indexOf(",")));
 				int y = Integer.parseInt(line.substring(line.indexOf(",") + 1, line.indexOf(")")));
 				String color = line.substring(line.lastIndexOf(":") + 1);
 				Color c = Color.BLACK;
+				
 				c = new Color(Integer.parseInt(color));
 				s = new Point(x, y, c);
+				
 			}
 
 			else if (line.contains("Line")) {
@@ -1099,7 +1099,6 @@ public class DrawingController implements Subject {
 				Color c = Color.BLACK;
 
 				c = new Color(Integer.parseInt(color));
-
 				s = new Line(new Point(x, y), new Point(x1, y1), c);
 
 			} else if (line.contains("Square")) {
@@ -1251,6 +1250,216 @@ public class DrawingController implements Subject {
 
 		br.close();
 	}
+	
+	public void loadOneByOne123(File fileToLoad) throws  IOException {
+		list.getList().clear();
+		list.getUndo().clear();
+		frame.getBtnUndo().setEnabled(false);
+		frame.getBtnRedo().setEnabled(false);
+		selectedList.clear();
+		selList.clear();
+
+		model.getShapes().clear();
+		notifyAllObservers();
+		backList.clear();
+		DrawingFrame.getTxtArea().setText("");
+		current=-1;
+		currentUndo=-1;
+		list.setCurrent(0);
+		pro=true;
+		pp=0;
+
+
+		BufferedReader br = new BufferedReader(new FileReader(fileToLoad));
+		String line;
+		Shape s = null;
+
+		while ((line = br.readLine()) != null) {
+
+			backList.add(line);
+		}
+
+
+		for(int i=0;i<backList.size();i++) {
+			line=backList.get(i);
+			if(line.contains("Point")) { 		  
+				int x = Integer.parseInt(line.substring(line.indexOf("(")+1, line.indexOf(",")));
+				int y = Integer.parseInt(line.substring(line.indexOf(",")+1,line.indexOf(")")));
+				String color = line.substring(line.lastIndexOf(":")+1);
+				Color c = Color.BLACK;
+				c=new Color(Integer.parseInt(color));
+				s = new Point(x,y,c); 
+			}
+
+			else if(line.contains("Line")) {
+
+				int x = Integer.parseInt(line.substring(line.indexOf("(")+1, line.indexOf(",")));
+				int y = Integer.parseInt(line.substring(line.indexOf(",")+1,line.indexOf(")")));
+				int x1 = Integer.parseInt(line.substring(line.lastIndexOf("(")+1, line.lastIndexOf(",")));
+				int y1 = Integer.parseInt(line.substring(line.lastIndexOf(",")+1,line.lastIndexOf(")")));
+				String color = line.substring(line.lastIndexOf(":")+1);
+				Color c = Color.BLACK;
+
+				c=new Color(Integer.parseInt(color));
+
+				s = new Line(new Point(x,y),new Point(x1,y1),c);
+
+			}
+			else if(line.contains("Square")) {
+
+
+
+				int x = Integer.parseInt(line.substring(line.indexOf("(")+1, line.indexOf(",")));
+				int y = Integer.parseInt(line.substring(line.indexOf(",")+1,line.indexOf(")")));
+				int length = Integer.parseInt(line.substring(line.lastIndexOf(",")+1,line.lastIndexOf("r")-9));
+
+				String color = line.substring(line.indexOf("-")+1,line.lastIndexOf("-")-1); 
+				String color1 = line.substring(line.lastIndexOf("-"));
+				Color c = Color.BLACK;
+				Color c1 = Color.WHITE;
+
+				c=new Color(Integer.parseInt(color));
+				c1=new Color(Integer.parseInt(color1));
+
+				s = new Square(new Point(x,y),length,c,c1);
+
+			}
+			else if(line.contains("Rectangle")) {
+
+				int x = Integer.parseInt(line.substring(line.indexOf("(")+1, line.indexOf(",")));
+				int y = Integer.parseInt(line.substring(line.indexOf(",")+1,line.indexOf(")")));
+				int length = Integer.parseInt(line.substring(line.lastIndexOf(")")+2,line.indexOf("/")));
+				int height = Integer.parseInt(line.substring(line.indexOf("/")+1,line.lastIndexOf("r")-9));
+
+				String color = line.substring(line.indexOf("-")+1,line.lastIndexOf("-")-1);
+
+				String color1 = line.substring(line.lastIndexOf("-"));
+				Color c = Color.BLACK;
+				Color c1 = Color.WHITE;
+
+				c=new Color(Integer.parseInt(color));
+				c1=new Color(Integer.parseInt(color1));
+
+				s = new Rectangle(new Point(x,y),length,height,c,c1);
+			}
+			else if(line.contains("Hexagon")) {
+				int x = Integer.parseInt(line.substring(line.indexOf("(")+1, line.indexOf(",")));
+				int y = Integer.parseInt(line.substring(line.indexOf(",")+1,line.indexOf(")")));
+
+				int r = Integer.parseInt(line.substring(line.lastIndexOf(")")+2,line.indexOf(" rgb color-")));
+				String color =line.substring(line.indexOf("-")+1,line.lastIndexOf(":"));
+
+				String color1 = line.substring(line.lastIndexOf("-"));
+				Color c = Color.BLACK;
+				Color c1 = Color.WHITE;
+
+				c=new Color(Integer.parseInt(color));
+				c1=new Color(Integer.parseInt(color1));
+
+				HexagonAdapter hex = new HexagonAdapter(new Hexagon(x,y,r));
+
+				hex.getHexagon().setBorderColor(c);
+				hex.getHexagon().setAreaColor(c1);
+				s=hex;
+
+			}
+			else if(line.contains("Circle")) {
+
+				int x = Integer.parseInt(line.substring(line.indexOf("(")+1, line.indexOf(",")));
+				int y = Integer.parseInt(line.substring(line.indexOf(",")+1,line.indexOf(")")));
+				int r = Integer.parseInt(line.substring(line.lastIndexOf(")")+2,line.indexOf(" rgb color-")));
+				String color = line.substring(line.indexOf("-")+1,line.lastIndexOf(":"));
+				String color1 = line.substring(line.lastIndexOf("-"));
+				Color c = Color.BLACK;
+				Color c1 = Color.WHITE;
+				c=new Color(Integer.parseInt(color));
+				c1=new Color(Integer.parseInt(color1));
+
+				Circle cr = new Circle(new Point(x,y),r);
+				cr.setColor(c);
+				cr.setFillColor(c1);
+				s=cr;
+
+
+			}
+
+			if (line.contains("New")) {
+				CmdAddShape cmd = new CmdAddShape(model, s);
+
+				list.getList().add(cmd);
+
+				current++;
+
+			} else if (line.contains("Selected")) {
+
+				selList.add(s);
+
+				CmdSelectShape cmd = new CmdSelectShape(model, s, frame.getView().getGraphics());
+
+				list.getList().add(cmd);
+
+				current++;
+
+			} else if (line.contains("Deselected")) {
+
+				CmdDeselectShape cmd = new CmdDeselectShape(model, s, frame.getView().getGraphics());
+				selList.remove(s);
+				list.getList().add(cmd);
+
+				current++;
+
+			} else if (line.contains("Modified")) {
+
+				CmdUpdateShape cmd = new CmdUpdateShape(model, s, selList.get(0), frame.getGraphics(), selList);
+
+				list.getList().add(cmd);
+
+				current++;
+
+			} else if (line.contains("Deleted")) {
+				selList.clear();
+
+				CmdRemoveShape cmd = new CmdRemoveShape(model, s);
+
+				list.getList().add(cmd);
+				s.setSelected(true);
+
+				current++;
+
+			} else if (line.contains("Moved behind the selected object")) {
+
+				CmdOneToFront cmd = new CmdOneToFront(model);
+				list.getList().add(cmd);
+
+				current++;
+
+			} else if (line.contains("Moved in front of the selected object")) {
+
+				CmdOneToBack cmd = new CmdOneToBack(model);
+				list.getList().add(cmd);
+
+				current++;
+
+			} else if (line.contains("Moved to back")) {
+
+				CmdBringToBack cmd = new CmdBringToBack(model);
+				list.getList().add(cmd);
+
+				current++;
+
+			} else if (line.contains("Moved to front")) {
+
+				CmdBringToFront cmd = new CmdBringToFront(model);
+				list.getList().add(cmd);
+
+				current++;
+
+			}
+
+		}
+
+		br.close();	
+	}
 
 	public void go() {
 
@@ -1262,10 +1471,11 @@ public class DrawingController implements Subject {
 
 		if (list.getList().size() == list.getCurrent()) {
 
-			frame.setgo(false);
+			frame.getBtnGo().setEnabled(false);
 			selectedList.clear();
 
 			for (int i = 0; i < model.getShapes().size(); i++) {
+
 				if (model.getShapes().get(i).isSelected()) {
 					selectedList.add(model.getShapes().get(i));
 				}
@@ -1282,9 +1492,10 @@ public class DrawingController implements Subject {
 		}
 
 	}
-	
+
 	public void backup() {
 		
+		frame.getBtnGo().setEnabled(false);
 		selectedList.clear();
 		
 		for (int i = 0; i < model.getShapes().size(); i++) {
@@ -1318,7 +1529,9 @@ public class DrawingController implements Subject {
 
 		for (int i = 0; i < model.getShapes().size(); i++) {
 			if (model.getShapes().get(i).isSelected()) {
+
 				counter++;
+
 			}
 		}
 
@@ -1338,7 +1551,6 @@ public class DrawingController implements Subject {
 			enabledDelete = false;
 
 		}
-		
 		for (Observer mObserver : observers) {
 			mObserver.update(enabled, enabledDelete);
 		}

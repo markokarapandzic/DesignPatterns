@@ -36,7 +36,6 @@ public class Line extends Shape {
 		return tPocetna.udaljenost(tKrajnja);
 	}
 
-	// (xPocetne,yPocetne)-->(xKrajnje,yKrajnje)
 	public String toString() {
 		String color = Integer.toString(getColor().getRGB());
 

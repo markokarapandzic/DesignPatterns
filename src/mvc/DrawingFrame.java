@@ -146,7 +146,7 @@ public class DrawingFrame extends JFrame implements Observer {
 	private JMenuItem mntmSave;
 	private JMenuItem mntmOpen;
 	private static JTextArea txtArea;
-	private Boolean go;
+	private JButton btnGo;
 
 	public JToggleButton getTglbtnHexagon() {
 		return tglbtnHexagon;
@@ -164,12 +164,12 @@ public class DrawingFrame extends JFrame implements Observer {
 		return tglbtnTacka;
 	}
 
-	public Boolean getgo() {
-		return go;
+	public JButton getBtnGo() {
+		return btnGo;
 	}
 
-	public void setgo(Boolean go) {
-		this.go = go;
+	public void setBtnGo(JButton btnGo) {
+		this.btnGo = btnGo;
 	}
 
 	public DrawingFrame() {
@@ -223,11 +223,14 @@ public class DrawingFrame extends JFrame implements Observer {
 							controller.save(fileToSave, fileToSaveLog);
 							
 						} catch (IOException e) {
+							
 							e.printStackTrace();
+							
 						}
 
 					} else {
 						JOptionPane.showMessageDialog(null, "You didn't enter a corrent value");
+
 					}
 				}
 
@@ -238,7 +241,6 @@ public class DrawingFrame extends JFrame implements Observer {
 		mntmOpen = new JMenuItem("Open");
 		mntmOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
 				JFileChooser c = new JFileChooser();
 				FileNameExtensionFilter f = new FileNameExtensionFilter("bin", "bin", "txt");
 
@@ -248,10 +250,8 @@ public class DrawingFrame extends JFrame implements Observer {
 				int userSelection = c.showOpenDialog(null);
 
 				if (userSelection == JFileChooser.APPROVE_OPTION) {
-					
 					File fileToLoad = c.getSelectedFile();
 					String filename = fileToLoad.getPath();
-					
 					if (filename.substring(filename.lastIndexOf("."), filename.length()).contentEquals(".bin")) {
 						try {
 							controller.load(fileToLoad);
@@ -262,7 +262,7 @@ public class DrawingFrame extends JFrame implements Observer {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
-						go = false;
+						btnGo.setEnabled(false);
 
 					} else if (filename.substring(filename.lastIndexOf("."), filename.length()).contentEquals(".txt")) {
 
@@ -271,11 +271,11 @@ public class DrawingFrame extends JFrame implements Observer {
 							controller.loadOneByOne(fileToLoad);
 							if (!controller.getBackList().get(0).contains("New")
 									|| !controller.getBackList().get(0).contains("-")) {
-								go = false;
+								btnGo.setEnabled(false);
 								controller.getList().getList().clear();
 								controller.getList().getUndo().clear();
 							} else {
-								go = true;
+								btnGo.setEnabled(true);
 							}
 
 						} catch (IOException m) {
@@ -285,7 +285,7 @@ public class DrawingFrame extends JFrame implements Observer {
 
 					} else {
 
-						JOptionPane.showMessageDialog(null, "You didn't select a correct File");
+						JOptionPane.showMessageDialog(null, "You didn't select a corrent File");
 
 					}
 				}
@@ -294,25 +294,26 @@ public class DrawingFrame extends JFrame implements Observer {
 		});
 		mnFile.add(mntmOpen);
 
-//		go = new JButton();
-//		try {
-//			go.setText("Next");
-//		} catch (Exception ex) {
-//			System.out.println(ex);
-//		}
-		go = false;
-//		go.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent arg0) {
-//				if (go.isEnabled()) {
-//					try {
-//						controller.go();
-//					} catch (Exception e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-//				}
-//			}
-//		});
+		btnGo = new JButton();
+		try {
+			btnGo.setText("Next");
+		} catch (Exception ex) {
+			System.out.println(ex);
+		}
+		btnGo.setEnabled(false);
+		btnGo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (btnGo.isEnabled()) {
+					try {
+						controller.go();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		menuBar.add(btnGo);
+		
 		contentPane = new JPanel();
 		contentPane.setBackground(Color.DARK_GRAY);
 		setContentPane(contentPane);
@@ -468,7 +469,7 @@ public class DrawingFrame extends JFrame implements Observer {
 				controller.getList()
 						.newCmd(controller.getList().getCurrent() != controller.getList().getList().size() - 1);
 				btnRedo.setEnabled(false);
-				if (go) {
+				if (btnGo.isEnabled()) {
 					controller.backup();
 				}
 			}
@@ -477,6 +478,7 @@ public class DrawingFrame extends JFrame implements Observer {
 		btnToBack = new JButton("Background");
 		btnToBack.setEnabled(false);
 		btnToBack.addActionListener(new ActionListener() {
+			@SuppressWarnings("deprecation")
 			public void actionPerformed(ActionEvent e) {
 				if ((e.getModifiers() & InputEvent.SHIFT_MASK) != 0) {
 					controller.bringToBack();
@@ -486,7 +488,7 @@ public class DrawingFrame extends JFrame implements Observer {
 				controller.getList()
 						.newCmd(controller.getList().getCurrent() != controller.getList().getList().size() - 1);
 				btnRedo.setEnabled(false);
-				if (go) {
+				if (btnGo.isEnabled()) {
 					controller.backup();
 				}
 			}
@@ -509,7 +511,7 @@ public class DrawingFrame extends JFrame implements Observer {
 				controller.getList()
 						.newCmd(controller.getList().getCurrent() != controller.getList().getList().size() - 1);
 				btnRedo.setEnabled(false);
-				if (go) {
+				if (btnGo.isEnabled()) {
 					controller.backup();
 				}
 			}
@@ -534,7 +536,7 @@ public class DrawingFrame extends JFrame implements Observer {
 			public void mouseClicked(MouseEvent arg0) {
 				if (btnUndo.isEnabled()) {
 					controller.undo();
-					if (go) {
+					if (btnGo.isEnabled()) {
 						controller.backup();
 					}
 					btnRedo.setEnabled(true);
@@ -563,7 +565,7 @@ public class DrawingFrame extends JFrame implements Observer {
 				if (btnRedo.isEnabled()) {
 					controller.redo();
 					btnUndo.setEnabled(true);
-					if (go) {
+					if (btnGo.isEnabled()) {
 						controller.backup();
 					}
 				}
@@ -593,7 +595,7 @@ public class DrawingFrame extends JFrame implements Observer {
 				controller.getList()
 						.newCmd(controller.getList().getCurrent() != controller.getList().getList().size() - 1);
 				btnRedo.setEnabled(false);
-				if (go) {
+				if (btnGo.isEnabled()) {
 					controller.backup();
 				}
 			}
@@ -631,7 +633,7 @@ public class DrawingFrame extends JFrame implements Observer {
 				controller.getList()
 						.newCmd(controller.getList().getCurrent() != controller.getList().getList().size() - 1);
 				btnRedo.setEnabled(false);
-				if (go) {
+				if (btnGo.isEnabled()) {
 					controller.backup();
 				}
 
