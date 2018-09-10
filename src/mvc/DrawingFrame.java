@@ -250,8 +250,10 @@ public class DrawingFrame extends JFrame implements Observer {
 				int userSelection = c.showOpenDialog(null);
 
 				if (userSelection == JFileChooser.APPROVE_OPTION) {
+					
 					File fileToLoad = c.getSelectedFile();
 					String filename = fileToLoad.getPath();
+					
 					if (filename.substring(filename.lastIndexOf("."), filename.length()).contentEquals(".bin")) {
 						try {
 							controller.load(fileToLoad);
@@ -269,6 +271,7 @@ public class DrawingFrame extends JFrame implements Observer {
 						try {
 
 							controller.loadOneByOne(fileToLoad);
+							
 							if (!controller.getBackList().get(0).contains("New")
 									|| !controller.getBackList().get(0).contains("-")) {
 								btnGo.setEnabled(false);
@@ -279,14 +282,11 @@ public class DrawingFrame extends JFrame implements Observer {
 							}
 
 						} catch (IOException m) {
-							// TODO Auto-generated catch block
 							m.printStackTrace();
 						}
 
 					} else {
-
 						JOptionPane.showMessageDialog(null, "You didn't select a corrent File");
-
 					}
 				}
 
@@ -633,6 +633,7 @@ public class DrawingFrame extends JFrame implements Observer {
 				controller.getList()
 						.newCmd(controller.getList().getCurrent() != controller.getList().getList().size() - 1);
 				btnRedo.setEnabled(false);
+				
 				if (btnGo.isEnabled()) {
 					controller.backup();
 				}
@@ -665,7 +666,6 @@ public class DrawingFrame extends JFrame implements Observer {
 		btnColor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				btnColor.setBackground(JColorChooser.showDialog(null, "Choose color", Color.BLACK));
-
 			}
 		});
 		pnlColor.setLayout(new GridLayout(7, 8, 6, 4));

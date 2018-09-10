@@ -27,6 +27,8 @@ public class DrawingView extends JPanel {
 		if (model != null) {
 
 			Iterator<Shape> it = model.getShapes().iterator();
+			
+//			System.out.println(it);
 
 			while (it.hasNext()) {
 				it.next().drawShape(g);

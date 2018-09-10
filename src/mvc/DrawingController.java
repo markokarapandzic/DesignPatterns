@@ -13,8 +13,11 @@ import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.JOptionPane;
+
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 import command.CmdAddShape;
 import command.CmdBringToBack;
@@ -31,6 +34,7 @@ import command.CmdUpdatePoint;
 import command.CmdUpdateRectangle;
 import command.CmdUpdateShape;
 import command.CmdUpdateSquare;
+import command.Command;
 import command.CommandStack;
 import dialogs.DlgKrug;
 import dialogs.DlgKvadrat;
@@ -1074,22 +1078,22 @@ public class DrawingController implements Subject {
 		}
 
 		for (int i = 0; i < backList.size(); i++) {
-			
+
 			line = backList.get(i);
-			
-			if (line.contains("Point")) {
-				
+
+			if (line.contains("Tacka")) {
+
 				int x = Integer.parseInt(line.substring(line.indexOf("(") + 1, line.indexOf(",")));
 				int y = Integer.parseInt(line.substring(line.indexOf(",") + 1, line.indexOf(")")));
 				String color = line.substring(line.lastIndexOf(":") + 1);
 				Color c = Color.BLACK;
-				
+
 				c = new Color(Integer.parseInt(color));
 				s = new Point(x, y, c);
-				
+
 			}
 
-			else if (line.contains("Line")) {
+			else if (line.contains("Linija")) {
 
 				int x = Integer.parseInt(line.substring(line.indexOf("(") + 1, line.indexOf(",")));
 				int y = Integer.parseInt(line.substring(line.indexOf(",") + 1, line.indexOf(")")));
@@ -1101,7 +1105,7 @@ public class DrawingController implements Subject {
 				c = new Color(Integer.parseInt(color));
 				s = new Line(new Point(x, y), new Point(x1, y1), c);
 
-			} else if (line.contains("Square")) {
+			} else if (line.contains("Kvadrat")) {
 
 				int x = Integer.parseInt(line.substring(line.indexOf("(") + 1, line.indexOf(",")));
 				int y = Integer.parseInt(line.substring(line.indexOf(",") + 1, line.indexOf(")")));
@@ -1117,7 +1121,7 @@ public class DrawingController implements Subject {
 
 				s = new Square(new Point(x, y), length, c, c1);
 
-			} else if (line.contains("Rectangle")) {
+			} else if (line.contains("Pravougaonik")) {
 
 				int x = Integer.parseInt(line.substring(line.indexOf("(") + 1, line.indexOf(",")));
 				int y = Integer.parseInt(line.substring(line.indexOf(",") + 1, line.indexOf(")")));
@@ -1134,7 +1138,7 @@ public class DrawingController implements Subject {
 				c1 = new Color(Integer.parseInt(color1));
 
 				s = new Rectangle(new Point(x, y), length, height, c, c1);
-			} else if (line.contains("Hexagon")) {
+			} else if (line.contains("Heksagon")) {
 				int x = Integer.parseInt(line.substring(line.indexOf("(") + 1, line.indexOf(",")));
 				int y = Integer.parseInt(line.substring(line.indexOf(",") + 1, line.indexOf(")")));
 
@@ -1154,7 +1158,7 @@ public class DrawingController implements Subject {
 				hex.getHexagon().setAreaColor(c1);
 				s = hex;
 
-			} else if (line.contains("Circle")) {
+			} else if (line.contains("Krug")) {
 
 				int x = Integer.parseInt(line.substring(line.indexOf("(") + 1, line.indexOf(",")));
 				int y = Integer.parseInt(line.substring(line.indexOf(",") + 1, line.indexOf(")")));
@@ -1174,6 +1178,7 @@ public class DrawingController implements Subject {
 			}
 
 			if (line.contains("New")) {
+				
 				CmdAddShape cmd = new CmdAddShape(model, s);
 
 				list.getList().add(cmd);
@@ -1246,219 +1251,15 @@ public class DrawingController implements Subject {
 
 			}
 
+		}
+		
+		Iterator<Command> it = list.getList().iterator();
+		
+		while(it.hasNext()) {
+			System.out.println(it.next().toString());
 		}
 
 		br.close();
-	}
-	
-	public void loadOneByOne123(File fileToLoad) throws  IOException {
-		list.getList().clear();
-		list.getUndo().clear();
-		frame.getBtnUndo().setEnabled(false);
-		frame.getBtnRedo().setEnabled(false);
-		selectedList.clear();
-		selList.clear();
-
-		model.getShapes().clear();
-		notifyAllObservers();
-		backList.clear();
-		DrawingFrame.getTxtArea().setText("");
-		current=-1;
-		currentUndo=-1;
-		list.setCurrent(0);
-		pro=true;
-		pp=0;
-
-
-		BufferedReader br = new BufferedReader(new FileReader(fileToLoad));
-		String line;
-		Shape s = null;
-
-		while ((line = br.readLine()) != null) {
-
-			backList.add(line);
-		}
-
-
-		for(int i=0;i<backList.size();i++) {
-			line=backList.get(i);
-			if(line.contains("Point")) { 		  
-				int x = Integer.parseInt(line.substring(line.indexOf("(")+1, line.indexOf(",")));
-				int y = Integer.parseInt(line.substring(line.indexOf(",")+1,line.indexOf(")")));
-				String color = line.substring(line.lastIndexOf(":")+1);
-				Color c = Color.BLACK;
-				c=new Color(Integer.parseInt(color));
-				s = new Point(x,y,c); 
-			}
-
-			else if(line.contains("Line")) {
-
-				int x = Integer.parseInt(line.substring(line.indexOf("(")+1, line.indexOf(",")));
-				int y = Integer.parseInt(line.substring(line.indexOf(",")+1,line.indexOf(")")));
-				int x1 = Integer.parseInt(line.substring(line.lastIndexOf("(")+1, line.lastIndexOf(",")));
-				int y1 = Integer.parseInt(line.substring(line.lastIndexOf(",")+1,line.lastIndexOf(")")));
-				String color = line.substring(line.lastIndexOf(":")+1);
-				Color c = Color.BLACK;
-
-				c=new Color(Integer.parseInt(color));
-
-				s = new Line(new Point(x,y),new Point(x1,y1),c);
-
-			}
-			else if(line.contains("Square")) {
-
-
-
-				int x = Integer.parseInt(line.substring(line.indexOf("(")+1, line.indexOf(",")));
-				int y = Integer.parseInt(line.substring(line.indexOf(",")+1,line.indexOf(")")));
-				int length = Integer.parseInt(line.substring(line.lastIndexOf(",")+1,line.lastIndexOf("r")-9));
-
-				String color = line.substring(line.indexOf("-")+1,line.lastIndexOf("-")-1); 
-				String color1 = line.substring(line.lastIndexOf("-"));
-				Color c = Color.BLACK;
-				Color c1 = Color.WHITE;
-
-				c=new Color(Integer.parseInt(color));
-				c1=new Color(Integer.parseInt(color1));
-
-				s = new Square(new Point(x,y),length,c,c1);
-
-			}
-			else if(line.contains("Rectangle")) {
-
-				int x = Integer.parseInt(line.substring(line.indexOf("(")+1, line.indexOf(",")));
-				int y = Integer.parseInt(line.substring(line.indexOf(",")+1,line.indexOf(")")));
-				int length = Integer.parseInt(line.substring(line.lastIndexOf(")")+2,line.indexOf("/")));
-				int height = Integer.parseInt(line.substring(line.indexOf("/")+1,line.lastIndexOf("r")-9));
-
-				String color = line.substring(line.indexOf("-")+1,line.lastIndexOf("-")-1);
-
-				String color1 = line.substring(line.lastIndexOf("-"));
-				Color c = Color.BLACK;
-				Color c1 = Color.WHITE;
-
-				c=new Color(Integer.parseInt(color));
-				c1=new Color(Integer.parseInt(color1));
-
-				s = new Rectangle(new Point(x,y),length,height,c,c1);
-			}
-			else if(line.contains("Hexagon")) {
-				int x = Integer.parseInt(line.substring(line.indexOf("(")+1, line.indexOf(",")));
-				int y = Integer.parseInt(line.substring(line.indexOf(",")+1,line.indexOf(")")));
-
-				int r = Integer.parseInt(line.substring(line.lastIndexOf(")")+2,line.indexOf(" rgb color-")));
-				String color =line.substring(line.indexOf("-")+1,line.lastIndexOf(":"));
-
-				String color1 = line.substring(line.lastIndexOf("-"));
-				Color c = Color.BLACK;
-				Color c1 = Color.WHITE;
-
-				c=new Color(Integer.parseInt(color));
-				c1=new Color(Integer.parseInt(color1));
-
-				HexagonAdapter hex = new HexagonAdapter(new Hexagon(x,y,r));
-
-				hex.getHexagon().setBorderColor(c);
-				hex.getHexagon().setAreaColor(c1);
-				s=hex;
-
-			}
-			else if(line.contains("Circle")) {
-
-				int x = Integer.parseInt(line.substring(line.indexOf("(")+1, line.indexOf(",")));
-				int y = Integer.parseInt(line.substring(line.indexOf(",")+1,line.indexOf(")")));
-				int r = Integer.parseInt(line.substring(line.lastIndexOf(")")+2,line.indexOf(" rgb color-")));
-				String color = line.substring(line.indexOf("-")+1,line.lastIndexOf(":"));
-				String color1 = line.substring(line.lastIndexOf("-"));
-				Color c = Color.BLACK;
-				Color c1 = Color.WHITE;
-				c=new Color(Integer.parseInt(color));
-				c1=new Color(Integer.parseInt(color1));
-
-				Circle cr = new Circle(new Point(x,y),r);
-				cr.setColor(c);
-				cr.setFillColor(c1);
-				s=cr;
-
-
-			}
-
-			if (line.contains("New")) {
-				CmdAddShape cmd = new CmdAddShape(model, s);
-
-				list.getList().add(cmd);
-
-				current++;
-
-			} else if (line.contains("Selected")) {
-
-				selList.add(s);
-
-				CmdSelectShape cmd = new CmdSelectShape(model, s, frame.getView().getGraphics());
-
-				list.getList().add(cmd);
-
-				current++;
-
-			} else if (line.contains("Deselected")) {
-
-				CmdDeselectShape cmd = new CmdDeselectShape(model, s, frame.getView().getGraphics());
-				selList.remove(s);
-				list.getList().add(cmd);
-
-				current++;
-
-			} else if (line.contains("Modified")) {
-
-				CmdUpdateShape cmd = new CmdUpdateShape(model, s, selList.get(0), frame.getGraphics(), selList);
-
-				list.getList().add(cmd);
-
-				current++;
-
-			} else if (line.contains("Deleted")) {
-				selList.clear();
-
-				CmdRemoveShape cmd = new CmdRemoveShape(model, s);
-
-				list.getList().add(cmd);
-				s.setSelected(true);
-
-				current++;
-
-			} else if (line.contains("Moved behind the selected object")) {
-
-				CmdOneToFront cmd = new CmdOneToFront(model);
-				list.getList().add(cmd);
-
-				current++;
-
-			} else if (line.contains("Moved in front of the selected object")) {
-
-				CmdOneToBack cmd = new CmdOneToBack(model);
-				list.getList().add(cmd);
-
-				current++;
-
-			} else if (line.contains("Moved to back")) {
-
-				CmdBringToBack cmd = new CmdBringToBack(model);
-				list.getList().add(cmd);
-
-				current++;
-
-			} else if (line.contains("Moved to front")) {
-
-				CmdBringToFront cmd = new CmdBringToFront(model);
-				list.getList().add(cmd);
-
-				current++;
-
-			}
-
-		}
-
-		br.close();	
 	}
 
 	public void go() {
@@ -1494,18 +1295,18 @@ public class DrawingController implements Subject {
 	}
 
 	public void backup() {
-		
+
 		frame.getBtnGo().setEnabled(false);
 		selectedList.clear();
-		
+
 		for (int i = 0; i < model.getShapes().size(); i++) {
 			if (model.getShapes().get(i).isSelected()) {
-				
+
 				selectedList.add(model.getShapes().get(i));
-				
+
 			}
 		}
-		
+
 		frame.getView().repaint();
 		notifyAllObservers();
 		list.getList().clear();
